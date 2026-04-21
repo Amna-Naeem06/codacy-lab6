@@ -1,24 +1,22 @@
+import os
 import sqlite3
-import random
+import secrets
 
-# ❌ Hardcoded password (vulnerability)
-DB_PASSWORD = "12345"
+# Fix 1: environment variable
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
 
 conn = sqlite3.connect('users.db')
 cursor = conn.cursor()
 
+# Fix 2: parameterized query
 def get_user(username):
-    # ❌ SQL Injection vulnerability
-    query = f"SELECT * FROM users WHERE username = '{username}'"
-    cursor.execute(query)
+    query = "SELECT * FROM users WHERE username = ?"
+    cursor.execute(query, (username,))
     return cursor.fetchone()
 
-# ❌ Insecure random
+# Fix 3: secure OTP
 def generate_otp():
-    return random.randint(100000, 999999)
-
-# ❌ Unused variable
-unused_count = 0
+    return secrets.randbelow(900000) + 100000
 
 def main():
     user = input("Enter username: ")
